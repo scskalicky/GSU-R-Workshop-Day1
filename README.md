@@ -1,13 +1,13 @@
 # GSU-R-Workshop
  May 2024 R Stats and Data Visualisation Workshop
 
-## Installing R before the workshop!
+## Installing R and R Studio
 
-Before the workshop, you should have the latest versions of R and R Studio installed on your computer. 
+You should have the latest versions of R and R Studio installed on your computer. 
 
-Andy Field[https://www.youtube.com/watch?v=ZvPFKfNHBNQ&ab_channel=AndyField] has a short (and humorous) guide on how to do so.
+[Andy Fieldhas a short (and humorous) guide on how to do so](https://www.youtube.com/watch?v=ZvPFKfNHBNQ&ab_channel=AndyField).
 
-You can find a more detailed guide from Andy Field here, should you want an overview of R studio[https://milton-the-cat.rocks/learnr/r/r_getting_started/#section-overview]
+You can find [a more detailed guide from Andy Field here](https://milton-the-cat.rocks/learnr/r/r_getting_started/#section-overview), should you want an overview of R studio.
 
 ## The main tools
 
