@@ -1,0 +1,63 @@
+---
+title: "linear model"
+output:
+  word_document: default
+  html_document: default
+date: "2024-01-29"
+---
+
+
+Now that I've done a very thorough investigation of my data, I am going to run a linear regression. 
+
+```{r}
+library(tidyverse)
+library(lme4)
+library(emmeans)
+```
+
+
+Load in the data.
+
+```{r}
+model_dat <- read_csv('cleaned_data.csv')
+```
+
+
+Fit a linear regression with interaction bw condition + re of subject
+
+```{r}
+m1 <- lmer(rt ~ condition*valence + (1|subject), data = model_dat)
+```
+
+look at the model
+
+```{r}
+summary(m1)
+plot(resid(m1))
+```
+
+
+```{r}
+interaction <- as.data.frame(emmeans(m1, pairwise~condition|valence)$emmeans)
+interaction
+```
+
+Let's plot it!
+
+```{r}
+ggplot(interaction, aes(y = emmean, x = condition, lty = valence, color = valence, group = valence)) + 
+  geom_point() + 
+  geom_line() + 
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = .1) +
+  theme_bw()
+
+ggsave('interaction.png', height = 6, width = 8, device = 'png')
+
+```
+
+
+
+```{r}
+sessionInfo()
+
+```

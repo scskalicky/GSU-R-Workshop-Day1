@@ -1,0 +1,226 @@
+---
+title: "describe and visualise"
+output: html_document
+author: Stephen Skalicky
+---
+
+# before you start
+
+Working across multiple documents in R Studio is a great way to stay organised around different tasks. However, the global environment in R will keep items and variables across notebooks. For this reason, I usually restart my R session when I move to a new task. This clears the memory and helps avoid any issues with zombie variables from prior notebooks, duplicate names, and library conflicts. You can restart the R Session using the main menu: `Session --> Restart R`
+
+# descriptive statistics and visualisation
+
+After cleaning up some raw data, the next step usually includes looking at descriptive statistics of your raw data, as well plots. In this markdown document we will calculate the mean and standard deviation of different conditions, output that information as a `.csv` file. Then we will create some visualisations and output these files. 
+In this markdown document, we:
+
+## Load in tidyverse
+
+Again, tidyverse will be the main library here. It provides tools for data manipulation, summarising, and visualisation. 
+
+```{r}
+library(tidyverse)
+```
+
+## load in the cleaned data and converting string to numeric
+
+Use `read_csv()` to load in the cleaned data from the prior notebook. We give it the name `cleaned_dat`
+
+If you recall, we removed `null` from our `rt` variable while cleaning. This means `rt` is stored as text, not numbers. We want to convert the rt to a number, we can use a pipe to do this conversion as we load in the data. We could also go back and add it to the prior notebook procedure. 
+
+Here we use mutate to apply `as.numeric()` to `rt` after loading in the data. 
+
+```{r}
+cleaned_dat <- read_csv('data/cleaned_data.csv') %>%
+  mutate(rt = as.numeric(rt))
+```
+
+## descriptive statistics - tables
+
+In this data, there are two conditions with two levels each. These are independent variables of interest, and we are interested in their interaction.
+
+- condition: abstract or concrete
+- valence: positive or negative
+
+There are also two outcome (dependent) variables
+- rt - how long it took participant to make a decision
+- acc - whether the decision was correct or incorrect
+
+Calculate the mean and standard deviation of accuracy and rt in the four possible combinations of the independent variable.
+
+### dataframe of mean and standard deviation
+
+Here we will create a new object named `descriptives` which is a copy of `cleaned_dat`. 
+
+We then pipe into a function called `group_by()`. Inside `group_by`, we specify which grouping variables we want our calculations to consider. In this case, they will be `condition` and `valence`.
+
+The second pipe is a call to `summarise()`, where you can create new summary variables using other functions. In this case, we will use `mean()` and `sd()`. You can create as many variables as you want in the `summarise()` call, and the variables created within the call are ready for immediate use with the call, which is quite neat. 
+
+```{r}
+descriptives <- cleaned_dat %>%
+  group_by(condition, valence) %>%
+  summarise(mean_rt = mean(rt), sd_rt = sd(rt), mean_acc = mean(acc), sd_acc = sd(acc))
+```
+You can look at the data here, or you could look at it in R Studio viewer. 
+```{r}
+descriptives
+
+```
+
+
+### creating a table from descriptives
+
+How could you get the data from R into a Microsoft word table or other word processing software? You *could* copy and paste from R Studio, but really, you shouldn't. There is an easier way - save the dataframe as a `.csv` and create the table from that file. (there are also R packages that make tables for you, but this is quite quick and easy). Moreover, you can create a specific output folder for these tables. 
+
+Write `descriptives` as a `.csv` file to the folder `tables`, and call it `descriptives_table.csv`
+
+```{r}
+write_csv(descriptives, 'tables/descriptive_table.csv')
+
+```
+
+## descriptive statistics - plot
+
+We can also visualise this data. Rather than plotting the mean and sd, I prefer to plot the raw data to understand the existing distribution. `ggplot` is a great library for data vis in R. We can use it to create a boxplot, violin plot, and point plot of our data in different condition.
+
+the call to `ggplot` first asks for your data, then needs to know the aesthetics of your data (the `aes` call). Look what happens when we run just the first line:
+
+```{r}
+# the basic call to our plot
+ggplot(cleaned_dat, aes(y = rt, x = valence))
+```
+
+### add jitter points
+Now we can add more layers and information to the plot. 
+
+add a `geom_point()` to plot each individual data point. 
+
+Add `position = position_jitter()` to space the points out. Add`width = .1` to make the space between the points smaller.
+
+Annoyingly, adding pieces to a ggplot object requires using the `+` instead of the pipe. 
+
+```{r}
+# add jittered points. 
+ggplot(cleaned_dat, aes(y = rt, x = valence)) + 
+  geom_point(position = position_jitter(width = .1))
+
+```
+### add violin plot
+
+Now add a violin plot layer.
+
+Add `alpha = .2` to the violins, which increases their transparency so we can still see the points (1 = opaque)
+
+```{r}
+# add a violin layer
+ggplot(cleaned_dat, aes(y = rt, x = valence)) + 
+  geom_point(position = position_jitter(width = .1)) + 
+  # increase transparency of violins by 80% using alpha
+  geom_violin(alpha = .2)
+```
+
+### now add the second condition
+
+Right now only the valence is plotted - condition is not even part of the plot! 
+
+There are a couple ways to approach this - one is to ask the aesthetics call to separate the points and violins by condition. 
+
+This means using fill and colour to the aesthetics call. Adding a `fill` will "fill" the violins with the colour of each condition, and adding colour will colour the points by condition, effectively separating them.
+
+The positions also need to be updated to both jitter (space points out) and dodge (place conditions sideby side). Update `position_jitter()` to `position_jitterdodge()`. The `width` argument needs to change to `jitter.width`
+
+
+```{r}
+# add fill and colour of condition
+ggplot(cleaned_dat, aes(y = rt, x = valence, fill = condition, color = condition)) + 
+  # change to jitter dodge, add jitter.width, increase transparency b 50% with alpha
+  geom_point(position = position_jitterdodge(jitter.width = .1), alpha = .5) + 
+  # increase transparency of violins by 80% using alpha
+  geom_violin(alpha = .2)
+```
+
+You can do the same thing with boxplots...
+
+```{r}
+# add fill and colour of condition
+ggplot(cleaned_dat, aes(y = rt, x = valence, fill = condition, color = condition)) + 
+  # change to jitter dodge, add jitter.width, increase transparency b 50% with alpha
+  geom_point(position = position_jitterdodge(jitter.width = .1), alpha = .5) + 
+  # increase transparency of boxplots by 80% using alpha, use width to make them smaller
+  geom_boxplot(alpha = .2, width = .2)
+```
+
+### adding labels and other styling
+
+The `theme()` and `labs()` functions allow you to do a lot of different styling. 
+
+Use `labs()` to rename the labels for the x axis, y axis, and main plot title. 
+
+Inside `labs()` I rename both `fill` and `colour` which will control the legend title. These need to match or you end up with two legends. You could enter an empty string (`''`) to remove the label. You can move (or remove) the legend with `theme(legend.position = ...)`, options include `'top'`, '`bottom'`, `'left'`, `'right'`, or the x,y coordinates (e.g., `c(.1, .1)`). Entering `'none'` will remove the legend. 
+
+The `theme_classic()` gives you a nice clean plot. You can also try `theme_bw()` or a variety of other themes out there. 
+
+```{r}
+# add fill and colour of condition
+ggplot(cleaned_dat, aes(y = rt, x = valence, fill = condition, color = condition)) + 
+  # change to jitter dodge, add jitter.width, increase transparency b 50% with alpha
+  geom_point(position = position_jitterdodge(jitter.width = .1), alpha = .5) + 
+  # increase transparency of boxplots by 80% using alpha, use width to make them smaller
+  geom_boxplot(alpha = .2, width = .2) + 
+  # add custom labels. an empty string effectively removes the label. 
+  labs(y = 'Reaction Time', x = "", title = 'Boxplots of raw data by condition and valence', fill = '', colour = '') + 
+  # you can remove the commented line to move the position to the center of the plot.
+  theme_classic() #+ theme(legend.position = c(.5, .5))
+```
+
+#### using facets to separate conditions. 
+
+instead of using colours and fill, you can also separate the plot using facets. This removes the need to define colour or use dodged positions. This is an attractive option for black and white publications or simply based on your preference. 
+
+
+```{r}
+# use facets instead of fill and colour
+ggplot(cleaned_dat, aes(y = rt, x = valence)) +
+  # this says facet everything (.) by (~) condition 
+  facet_wrap(. ~ condition) + 
+  # change to jitter dodge, add jitter.width, increase transparency b 50% with alpha
+  geom_point(position = position_jitter(width = .1), alpha = .2) + 
+  # increase transparency of boxplots by 80% using alpha, use width to make them smaller
+  geom_boxplot(alpha = .2, width = .2) + 
+  # add custom labels. an empty string effectively removes the label. 
+  labs(y = 'Reaction Time', x = "", title = 'Boxplots of raw data by condition and valence') + 
+  # I think theme_bw() looks nicer for faceting plots
+  theme_bw() 
+```
+
+### saving the plot as a file
+
+Use `ggsave()` to save plots. By default, ggsave() will save the last plot you rendered. Provide the function with a filename as well as other options, such as the side, resolution, and type of image. 
+
+This line saves the boxplotfigure as a `.png` file. The call to `ragg:agg_png` allows for higher resolution figures (this resolution is set to 600dpi), and the height and width are defined in inches. Vary these options to suit your needs. 
+
+
+```{r}
+
+ggsave(filename = 'figures/myboxplot.png', device = ragg::agg_png, res = 600,  height = 4, width = 6)
+```
+
+
+## quickly plot accuracy
+Accuracy is a value that is 1 or 0, so plotting it using points or violins will be less useful. Instead using a count of each accurate/innacruate for each condition x valence combination is more interesting. 
+
+Here is a plot which facets by valence, fills the bar by accuracy, and then uses `geom_bar()` which provides a count by default. 
+
+The use of `factor(acc)` in the `aes()` forces R to consider this as a variable with only two levels instead of a continuous number. 
+```{r}
+# geom point is sort of useful
+ggplot(cleaned_dat, aes(fill = factor(acc), x = condition)) + 
+  facet_wrap(. ~ valence) + 
+  geom_bar(position = 'dodge', width = .8) + 
+  labs(x = 'Accuracy', y = '') + 
+  theme_bw() + 
+  # here is another way to remove legend title
+  theme(legend.title = element_blank()) 
+```
+# Interpret the plots!
+
+Before running *any* statistical analysis, what can we say about the data based on these two plots?

@@ -1,0 +1,84 @@
+---
+title: "reading and cleaning data"
+output: html_document
+author: Stephen Skalicky
+---
+
+# Loading in and cleaning data
+The first step in any analysis is to get your data into the correct format. In the same folder as this `.Rmd` file is a `.csv` file named `raw_data.csv`. This data is already formatted into the what is known as *long format*. Data in long format means that each row is an observation and each column is a variable.
+
+For example, if you had three participants each answer four questions, every answer would count as a single observation. You would thus have twelve observations (3 participants x 4 questions = 12), meaning that your data would have twelve rows. Let's say further that the questions were in one of two conditions, you would then have a seperate column which lists the condition for any one question. 
+
+It's easier to look at an example - let's load in some sample data. We will first load the `tidyverse` library. This is actually a family of libraries related to reading, writing, manipulating, and visualising data. We load libraries into r using `library()`. If you don't have the library installed, you can use `install.packages()`, with the name of the library in the brackets and in quotes (e.g., `install.packages('tidyverse')`). 
+
+Run the following code cells to run the library and load in the data. 
+
+# Load in the library
+```{r}
+library(tidyverse)
+```
+
+# Load in the data
+
+In the cell below, we create a variable named `dat` which is the result of using the function `read_csv()` on our raw data. This will create a dataframe (or, tibble), which is a tabular format, similar to a spreadsheet. After loading the data, look at it in the R Studio viewer - note its structure and how it represents long format.
+
+Also note the filepath - because I put the csv file in a folder called data, I still need to include that folder in the file path. If the csv file was in the same directory as this file, we would not need to do that. 
+ 
+```{r}
+dat <- read_csv('data/raw_data.csv')
+```
+
+# This is not a pipe
+Data manipulation and transformation in R can be highly transparent and flexible using a system known as piping data. The basic logic is that we start with some existing dataframe, create a copy of it (with a new name!), and then perform iterative functions on that copy. 
+
+The pipe operator was introduced in tidyverse and looks like this `%>%`. Since then, base R now has a default pipe, which looks like `|>`. They are effectively equivalent in terms of their basic job - passing data from the left to the right. There are however some differences you might be interested in:
+
+  - https://www.tidyverse.org/blog/2023/04/base-vs-magrittr-pipe/
+  - https://stackoverflow.com/questions/67633022/what-are-the-differences-between-rs-native-pipe-and-the-magrittr-pipe
+
+Let's just stick with the tidyverse pipe. In the cell below, I create a new variable named `dat2` which is a copy of `dat`.The pipe `%>%` then passes the new variable forward for the next operations. Note if you run the cell you will get an error, because R is expecting you to do something after the pipe. 
+
+```{r}
+dat2 <- dat %>%
+  # do stuff here. 
+```
+
+## Filtering the data
+Let's clean out some rows we don't want for our analysis. 
+
+Note that there is a column called `practice` which designates whether that trial was a practice trial or not (using `yes` or `no`). Let's remove those trials using `filter()`. We include the conditional test inside `filter()`, which will only include anything that meets the conditions of the test (i.e., returns `TRUE`)
+
+
+### Remove practice trials
+
+Remove practice trials - compare `dat` and `dat2`
+- note that by creating a new version, we can refine or change this manipulation over and over without overwriting our original data structure. 
+
+
+```{r}
+dat2 <- dat %>%
+  filter(practice == 'no')
+```
+
+### Remove rt that are coded as `'null'`
+
+There are some other trials we want to remove. In this task, participants who took too long to respond timed out and their reaction time was recorded as a "null". 
+
+In the code cell below, create a new dataframe named `dat3` from `dat2`. Use a pipe and a `filter()` command to keep only RT values that are *not* 'null'
+
+To do so, you will need to use a not equals sign, which is `!=` in r. So your filter function will be `filter(rt != 'null)`
+
+```{r}
+# filter out rt trials that are null here. 
+
+
+```
+
+
+# Output your cleaned data. 
+
+Now that you have cleaned the data, you can write the new data as a `.csv` file for use in subsequent analyses. Use the `write_csv()` function, which firstly takes the data frame you want to write, as well as the name you want to give the file. 
+
+```{r}
+write_csv(dat3, 'data/cleaned_data.csv')
+```
