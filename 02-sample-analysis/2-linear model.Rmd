@@ -1,63 +1,168 @@
 ---
-title: "linear model"
-output:
-  word_document: default
-  html_document: default
-date: "2024-01-29"
+title: "run and visualise a simple linear model"
+output: html_document
 ---
 
+# Preliminaries
 
-Now that I've done a very thorough investigation of my data, I am going to run a linear regression. 
+- Make sure to restart your R session to clean out anything from prior sessions. 
+- You'll need the cleaned data variable created in the data cleaning .Rmd file 
+
+# Creating a linear model
+
+In this notebook we'll fit, decompose, and visualise a regression model fit from our cleaned data.
+
+Load in the libraries - `tidyverse` to manipulate data, `lme4` to create the regression models, `emmeans` to decompose the statistical model, and `performance` to get quick diagnostics of our model. 
 
 ```{r}
 library(tidyverse)
 library(lme4)
 library(emmeans)
+library(performance)
 ```
 
 
-Load in the data.
+## Load in the data.
+
+load in the cleaned data, giving it the name `model_dat`
 
 ```{r}
-model_dat <- read_csv('cleaned_data.csv')
+model_dat <- read_csv('data/cleaned_data.csv')
 ```
 
+## fit a linear regression model predicting reaction time. 
 
-Fit a linear regression with interaction bw condition + re of subject
+We will fit a regression model with fixed effects interaction of condition by valence. 
+
+#### random effects and slopes
+There is also a random intercept fit for subjects, and a random slope of condition. 
+Random intercept / effect = allows people to have different starting places in the model
+Random slope = allows for different degrees of strength of the effects
+
+Name the model `m1` and fit it. 
+
 
 ```{r}
-m1 <- lmer(rt ~ condition*valence + (1|subject), data = model_dat)
+m1 <- lmer(rt ~ condition*valence + (1 + condition|subject), data = model_dat)
 ```
 
 look at the model
 
 ```{r}
 summary(m1)
-plot(resid(m1))
 ```
 
+```{r}
+# this is not a great model. 
+performance::model_performance(m1)
+```
+
+## decompose the model with emmeans
+
+the `emmeans` package is gold - it lets you interrograte a fit model in any number of ways. 
+
+Here the focus is on a pairwise comparison of the interaction between condition and valence. 
+
+
+you may need to `install.packages('pbkrtest')` and `install.packages('lmerTest')`
+
+```{r}
+# calculate estimate marginal means on m1
+# pairwise comparison of condition while also considering valence. 
+emmeans(m1, pairwise~condition|valence)
+
+# abstract condition had higher estimated RT of 1878 when compared to concrete. 
+```
+
+### plot the emmeans contrast
+
+We can turn that stuff above into a dataframe for plotting. It provides the estimates and confidence intervals. Cool!
 
 ```{r}
 interaction <- as.data.frame(emmeans(m1, pairwise~condition|valence)$emmeans)
 interaction
 ```
 
-Let's plot it!
+First, create the basic plot structure
+
+```{r}
+ggplot(interaction, aes(y = emmean, x = valence)) + 
+  geom_point()
+
+```
+
+Add a line connecting the points. we need to give it a `group` to make the connection. We want to group by condition. 
+
+```{r}
+ggplot(interaction, aes(y = emmean, x = valence, group = condition)) + 
+  geom_point() + 
+  geom_line()
+
+```
+
+
+Add error bars (confidence intervals to the plot). Use `geom_errorbar()`, which asks for its own `aes()` to find the upper/lower bounds (ymax/ymin). We use `lower.CL` and `higher.CL` from the emmeans output for those values. Depending on the type of model and emmeans output, these names might be different.
+
+
+```{r}
+ggplot(interaction, aes(y = emmean, x = valence, group = condition)) + 
+  geom_point() + 
+  geom_line() + 
+  # default error bar width is very wide.
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = .1)
+```
+Now add some colour and style. 
+
+`lty` = linetype, which will create dashed/dotted/solid lines to distinguish conditions. 
+
+```{r}
+ggplot(interaction, aes(y = emmean, x = valence, group = condition, lty = condition, colour = condition)) + 
+  geom_point() + 
+  geom_line() + 
+  # default error bar width is very wide.
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = .1)
+```
+Add labels and other styling, and save the plot. 
+
+```{r}
+ggplot(interaction, aes(y = emmean, x = valence, lty = condition, color = condition, group = condition)) + 
+  geom_point() + 
+  geom_line() + 
+  # default error bar width is very wide.
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = .1) +
+  # the \n creates a new line
+  labs(title = 'Interaction plot', y = 'Reaction Time \n(model estimate)', x = '' ) +
+  theme_bw() + 
+  theme(legend.title = element_blank())
+
+ggsave('figures/interaction.png', height = 6, width = 8, device = 'png')
+
+```
+
+#### choices...
+Consider how this version of the plot looks compared to above. They are plotting the exact same data, but which plot better tells the viewer what is going on? There is a bit of an art in figuring out the best way to show your data, depending on the contrasts you care about. 
+
 
 ```{r}
 ggplot(interaction, aes(y = emmean, x = condition, lty = valence, color = valence, group = valence)) + 
   geom_point() + 
   geom_line() + 
+  # default error bar width is very wide.
   geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = .1) +
-  theme_bw()
-
-ggsave('interaction.png', height = 6, width = 8, device = 'png')
-
+  # the \n creates a new line
+  labs(title = 'Interaction plot', y = 'Reaction Time \n(model estimate)', x = '' ) +
+  theme_bw() + 
+  theme(legend.title = element_blank())
 ```
 
+
+# analysing and plotting accuracy using glmer
+
+# Reproducibility
+
+R is not great for package and environment control, but at the very least we can output the packages and their versions used in the analysis. 
 
 
 ```{r}
 sessionInfo()
-
 ```

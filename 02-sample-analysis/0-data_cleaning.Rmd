@@ -1,7 +1,7 @@
 ---
-title: "reading and cleaning data"
+title: "GSU R Workshop Day 1: Reading and cleaning data"
 output: html_document
-author: Stephen Skalicky
+author: 'Stephen Skalicky'
 ---
 
 # Loading in and cleaning data

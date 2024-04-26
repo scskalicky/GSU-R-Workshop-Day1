@@ -1,7 +1,7 @@
 ---
-title: "describe and visualise"
+title: "GSU R Workshop Day 1 :Describe and visualise"
 output: html_document
-author: Stephen Skalicky
+author: 'Stephen Skalicky'
 ---
 
 # before you start
@@ -194,9 +194,9 @@ ggplot(cleaned_dat, aes(y = rt, x = valence)) +
 
 ### saving the plot as a file
 
-Use `ggsave()` to save plots. By default, ggsave() will save the last plot you rendered. Provide the function with a filename as well as other options, such as the side, resolution, and type of image. 
+Use `ggsave()` to save plots. By default, `ggsave()` will save the last plot you rendered. Provide the function with a file name as well as other options, such as the side, resolution, and type of image. 
 
-This line saves the boxplotfigure as a `.png` file. The call to `ragg:agg_png` allows for higher resolution figures (this resolution is set to 600dpi), and the height and width are defined in inches. Vary these options to suit your needs. 
+This line saves the boxplot figure as a `.png` file. The call to `ragg:agg_png` allows for higher resolution figures (this resolution is set to 600 dpi), and the height and width are defined in inches. Vary these options to suit your needs. 
 
 
 ```{r}
@@ -206,17 +206,19 @@ ggsave(filename = 'figures/myboxplot.png', device = ragg::agg_png, res = 600,  h
 
 
 ## quickly plot accuracy
-Accuracy is a value that is 1 or 0, so plotting it using points or violins will be less useful. Instead using a count of each accurate/innacruate for each condition x valence combination is more interesting. 
+Accuracy is a value that is 1 or 0, so plotting it using points or violins will be less useful. Instead using a count of each accurate/innacurate for each condition x valence combination is more interesting. 
 
 Here is a plot which facets by valence, fills the bar by accuracy, and then uses `geom_bar()` which provides a count by default. 
 
 The use of `factor(acc)` in the `aes()` forces R to consider this as a variable with only two levels instead of a continuous number. 
 ```{r}
-# geom point is sort of useful
+# using geom bar with a count variable
 ggplot(cleaned_dat, aes(fill = factor(acc), x = condition)) + 
   facet_wrap(. ~ valence) + 
+  # geom bar is what it sounds like. i dislike how wide default bars are
   geom_bar(position = 'dodge', width = .8) + 
-  labs(x = 'Accuracy', y = '') + 
+  # i've opted to remove all labels
+  labs(x = '', y = '') + 
   theme_bw() + 
   # here is another way to remove legend title
   theme(legend.title = element_blank()) 
@@ -224,3 +226,4 @@ ggplot(cleaned_dat, aes(fill = factor(acc), x = condition)) +
 # Interpret the plots!
 
 Before running *any* statistical analysis, what can we say about the data based on these two plots?
+
