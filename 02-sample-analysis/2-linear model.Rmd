@@ -155,9 +155,6 @@ ggplot(interaction, aes(y = emmean, x = condition, lty = valence, color = valenc
   theme(legend.title = element_blank())
 ```
 
-
-# analysing and plotting accuracy using glmer
-
 # Reproducibility
 
 R is not great for package and environment control, but at the very least we can output the packages and their versions used in the analysis. 
