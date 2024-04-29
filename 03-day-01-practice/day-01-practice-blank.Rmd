@@ -1,0 +1,119 @@
+---
+title: "Day 1 Practice"
+author: "Stephen Skalicky"
+output: html_document
+---
+
+# Take home practice
+
+This is an opportunity for some additional practice with data reading, summarising, manipulation, and plotting data.
+
+This data is a series of plausibility ratings provided for different short stories in English. Here are the instructions participants received:
+
+*Plausibility is a measure of how likely you think something can occur. For example, being full after eating a meal is more plausible than being hungry after eating a meal. However, one could still feel hungry after eating a meal. It is just less plausible when compared to being full.” Your task is to rate each story you read on a scale of plausibility. The scale ranges from 0 (not at all plausible) to 5 (highly plausible). When making your ratings, please consider all aspects of the story.*
+
+
+The stories appeared in four different conditions - A, B, C, or D. Your goal is to write a notebook which can:
+
+1. Load in the data file and save it to the variable `dat`
+2. Create a data frame summarising the mean and standard deviation of the dependent variable
+3. Create a boxplot of the ratings among the different conditions, interpret the boxplot
+4. Fit a multilevel regression model comparing the dependent variable among the condition
+5. Use `emmeans` to obtain pairwise contrasts, and explain the results
+
+The data is located in the file `day-01-practice-data.csv`
+
+# load in the libraries here
+```{r}
+library(tidyverse)
+library(lme4)
+library(emmeans)
+```
+
+## 1. Read in the data file and save it to the variable `dat`
+
+```{r}
+# add your code here
+
+```
+
+
+## 2. Create a df with mean and standard deviation of the ratings in the four different conditions. Name this df `descriptives` and create two new variables:
+
+  - `mean_rating` = mean of rating
+  - `sd_rating` = sd of rating
+  
+Creative your new df from `dat`, then pipe into a `group_by()`, and then pipe into a `summarise()` 
+
+```{r}
+# add your code here
+```
+
+
+## 3. Plot the raw data
+
+Create a ggplot of `dat`. The y axis is rating, and the x axis is condition.
+
+Plot a boxplot (`geom_boxplot()`) and also the raw points with jitter added (`geom_point(position = position_jitter())`). 
+
+Style the plot to your liking. 
+
+```{r}
+# add your code here
+
+```
+## 4. Describe the plot
+
+  - which condition(s) has the highest median rating?
+  - which condition(s) has the lowest median rating?
+  - where do you expect to see significant differences among these condition? Why?
+  
+
+
+## 5. Create a regression model predicting ratings
+
+`rating` is your dependent variable
+`condition` is your only predictor variable
+add a random intercept of `(1|subject)`
+
+name the model `m1`
+
+
+```{r}
+# add your code here
+```
+
+## 6. Decompose the model using `emmeans`
+
+call `emmeans()` on `m1` and ask for `pairwise~condition`
+
+What do you see? Write a paragraph explaining the results
+
+- which contrasts are significant?
+- among these contrasts, which is the strongest effect? Which is the smallest (hint: compare the size of the estimates)
+
+```{r}
+# add your code here
+```
+
+
+# bonus - what about the items? 
+
+You'll notice there is also a variable for the items in the data - each item appeared in each condition. It might be worthwhile to see if some items attracted higher/lower ratings in general.
+
+- Create a df named `item_summary` which is the mean and standard deviation of rating for each condition and each item. You need to add `story_id` to the `group_by()` function
+
+```{r}
+# add your code here
+
+```
+
+
+- Create a ggplot of `item_summary`. Set the y axis to be the mean rating, and the x axis to be condition. Add a facet_wrap by story `facet_wrap(. ~ story_id)`
+
+Knowing what you know about the significant contrasts obtained among the conditions, which stories follow and which do not follow the significant effect obtained from the model? 
+
+
+```{r}
+# add your code here
+```
