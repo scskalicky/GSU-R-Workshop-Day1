@@ -8,7 +8,7 @@ output: html_document
 # Example R Markdown File
 This file will look different depending on how you view it. If you use the `.Rmd` version and open in R Studio, you will see the code editor. If you use the `.html` version and open it with a web browser, you should see all the rendered code and markdown. 
 
-This text that you are reading is markdown text. Below is a code cell. Code cells are separated from markdown using three backticks above and below the code cell. The first three backticks allow you to define the language within the cell, and also give the cell a name (both optional).
+This text that you are reading is markdown text. Below is a code cell. Code cells are separated from markdown using three backticks above and below the code cell. The first three backticks `(```)` allow you to define the language within the cell, and also give the cell a name (both optional).
 
 In the code cell below, I use the `print()` function to print the string `'hello world'`. Note that the code output appears below the code cell, within the notebook. This allows us to keep code and notes in one place - useful for your own analyses as well as sharing with collaborators (or your supervisors!)
 
@@ -20,7 +20,7 @@ print('hello world')
 
 # Headers help organise within R Studio
 
-You can use the hastag/pound sign headings to organise your notebook. One hashtag is a level 1 heading, two is a level 2, and so on. Click the "Outline" button near the top right of this window to see the headers, allowing you to quickly jump among different markdown and code cells sections. 
+You can use the hashtag/pound sign headings to organise your notebook. One hashtag is a level 1 heading, two is a level 2, and so on. Click the "Outline" button near the top right of this window to see the headers, allowing you to quickly jump among different markdown and code cells sections. 
 
 ## Note how this header is nested
 
