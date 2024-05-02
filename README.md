@@ -1,4 +1,4 @@
-# GSU-R-Workshop
+# GSU-R-Workshop (Day 1)
  May 2024 R Stats and Data Visualisation Workshop
 
 ## Installing R and R Studio
