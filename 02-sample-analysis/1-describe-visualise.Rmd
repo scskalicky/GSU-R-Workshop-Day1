@@ -1,5 +1,5 @@
 ---
-title: "GSU R Workshop Day 1 :Describe and visualise"
+title: "GSU R Workshop Day 1: Describe and visualise"
 output: html_document
 author: 'Stephen Skalicky'
 ---
@@ -30,8 +30,8 @@ If you recall, we removed `null` from our `rt` variable while cleaning. This mea
 Here we use mutate to apply `as.numeric()` to `rt` after loading in the data. 
 
 ```{r}
-cleaned_dat <- read_csv('data/cleaned_data.csv') %>%
-  mutate(rt = as.numeric(rt))
+cleaned_dat <- read_csv('data/cleaned_data.csv')  %>%
+   mutate(rt = as.numeric(rt))
 ```
 
 ## descriptive statistics - tables
@@ -58,7 +58,10 @@ The second pipe is a call to `summarise()`, where you can create new summary var
 ```{r}
 descriptives <- cleaned_dat %>%
   group_by(condition, valence) %>%
-  summarise(mean_rt = mean(rt), sd_rt = sd(rt), mean_acc = mean(acc), sd_acc = sd(acc))
+  summarise(mean_rt = round(mean(rt),2), 
+            sd_rt = sd(rt), 
+            mean_acc = mean(acc), 
+            sd_acc = sd(acc))
 ```
 You can look at the data here, or you could look at it in R Studio viewer. 
 ```{r}
@@ -113,7 +116,7 @@ Add `alpha = .2` to the violins, which increases their transparency so we can st
 ```{r}
 # add a violin layer
 ggplot(cleaned_dat, aes(y = rt, x = valence)) + 
-  geom_point(position = position_jitter(width = .1)) + 
+  geom_point(position = position_jitter(width = .1), alpha = .2) + 
   # increase transparency of violins by 80% using alpha
   geom_violin(alpha = .2)
 ```
@@ -135,7 +138,7 @@ ggplot(cleaned_dat, aes(y = rt, x = valence, fill = condition, color = condition
   # change to jitter dodge, add jitter.width, increase transparency b 50% with alpha
   geom_point(position = position_jitterdodge(jitter.width = .1), alpha = .5) + 
   # increase transparency of violins by 80% using alpha
-  geom_violin(alpha = .2)
+  geom_violin(alpha = .2) 
 ```
 
 You can do the same thing with boxplots...
@@ -167,9 +170,10 @@ ggplot(cleaned_dat, aes(y = rt, x = valence, fill = condition, color = condition
   # increase transparency of boxplots by 80% using alpha, use width to make them smaller
   geom_boxplot(alpha = .2, width = .2) + 
   # add custom labels. an empty string effectively removes the label. 
-  labs(y = 'Reaction Time', x = "", title = 'Boxplots of raw data by condition and valence', fill = '', colour = '') + 
+  labs(y = 'Reaction Time', x = "", title = 'Boxplots of raw data by condition and valence', subtitle = 'my subtitle', caption = 'caption goes here', fill = '', colour = '') + 
   # you can remove the commented line to move the position to the center of the plot.
-  theme_classic() #+ theme(legend.position = c(.5, .5))
+  theme_classic() + 
+  theme(legend.position = 'top')
 ```
 
 #### using facets to separate conditions. 
@@ -179,7 +183,7 @@ instead of using colours and fill, you can also separate the plot using facets. 
 
 ```{r}
 # use facets instead of fill and colour
-ggplot(cleaned_dat, aes(y = rt, x = valence)) +
+p <- ggplot(cleaned_dat, aes(y = rt, x = valence)) +
   # this says facet everything (.) by (~) condition 
   facet_wrap(. ~ condition) + 
   # change to jitter dodge, add jitter.width, increase transparency b 50% with alpha
@@ -187,9 +191,11 @@ ggplot(cleaned_dat, aes(y = rt, x = valence)) +
   # increase transparency of boxplots by 80% using alpha, use width to make them smaller
   geom_boxplot(alpha = .2, width = .2) + 
   # add custom labels. an empty string effectively removes the label. 
-  labs(y = 'Reaction Time', x = "", title = 'Boxplots of raw data by condition and valence') + 
+  labs(y = 'Reaction Time', x = "", title = 'Boxplots of raw data by condition and valence') +
   # I think theme_bw() looks nicer for faceting plots
   theme_bw() 
+
+p
 ```
 
 ### saving the plot as a file
@@ -200,8 +206,10 @@ This line saves the boxplot figure as a `.png` file. The call to `ragg:agg_png` 
 
 
 ```{r}
-
-ggsave(filename = 'figures/myboxplot.png', device = ragg::agg_png, res = 600,  height = 4, width = 6)
+ggsave(p, filename = 'figures/myboxplot.png', 
+       device = 'png', 
+       height = 4, 
+       width = 6)
 ```
 
 

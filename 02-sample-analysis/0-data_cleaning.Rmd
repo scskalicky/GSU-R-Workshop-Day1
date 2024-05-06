@@ -7,7 +7,7 @@ author: 'Stephen Skalicky'
 # Loading in and cleaning data
 The first step in any analysis is to get your data into the correct format. In the same folder as this `.Rmd` file is a `.csv` file named `raw_data.csv`. This data is already formatted into the what is known as *long format*. Data in long format means that each row is an observation and each column is a variable.
 
-For example, if you had three participants each answer four questions, every answer would count as a single observation. You would thus have twelve observations (3 participants x 4 questions = 12), meaning that your data would have twelve rows. Let's say further that the questions were in one of two conditions, you would then have a seperate column which lists the condition for any one question. 
+For example, if you had three participants each answer four questions, every answer would count as a single observation. You would thus have twelve observations (3 participants x 4 questions = 12), meaning that your data would have twelve rows. Let's say further that the questions were in one of two conditions, you would then have a separate column which lists the condition for any one question. 
 
 It's easier to look at an example - let's load in some sample data. We will first load the `tidyverse` library. This is actually a family of libraries related to reading, writing, manipulating, and visualising data. We load libraries into r using `library()`. If you don't have the library installed, you can use `install.packages()`, with the name of the library in the brackets and in quotes (e.g., `install.packages('tidyverse')`). 
 
@@ -40,6 +40,7 @@ Let's just stick with the tidyverse pipe. In the cell below, I create a new vari
 
 ```{r}
 dat2 <- dat %>%
+  
   # do stuff here. 
 ```
 
@@ -57,7 +58,8 @@ Remove practice trials - compare `dat` and `dat2`
 
 ```{r}
 dat2 <- dat %>%
-  filter(practice == 'no')
+  filter(practice == 'no') 
+  
 ```
 
 ### Remove rt that are coded as `'null'`
@@ -70,7 +72,8 @@ To do so, you will need to use a not equals sign, which is `!=` in r. So your fi
 
 ```{r}
 # filter out rt trials that are null here. 
-
+dat3 <- dat2 %>%
+  filter(rt != 'null')
 
 ```
 
